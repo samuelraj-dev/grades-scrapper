@@ -6,7 +6,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 app.secret_key = "123"
 
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "https://localhost:4433"])
+CORS(app, supports_credentials=True, origins=["http://localhost:5173", "https://localhost:4433", "https://grades-scrapper-fe.vercel.app"])
 
 PORTAL_LOGIN_URL = "https://ims.ritchennai.edu.in/login"
 PORTAL_GRADES_URL = "https://ims.ritchennai.edu.in/admin/grade/student/mark/get_marks"
