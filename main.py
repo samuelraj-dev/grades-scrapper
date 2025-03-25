@@ -15,31 +15,39 @@ PORTAL_CSRF_URL = "https://ims.ritchennai.edu.in/admin/grade/student/mark/report
 LOGIN_FAILURE_MSG = "These credentials do not match our records."
 
 credits_mapper = {
-    "Engineering Chemistry": 3,
-    "Chemistry Laboratory": 1,
-    "Problem Solving and C Programming": 3,
-    "Heritage of Tamil": 0,
-    "Problem Solving and C Programming Laboratory": 1,
-    "Engineering Practices Laboratory": 1,
-    "Engineering Graphics": 4,
-    "Communicative English": 3,
-    "Matrices and Calculus": 4,
-    "Python for Data science ": 3,
-    "Python for Data Science Laboratory ": 1,
-    "Basic Electrical and Electronics\nEngineering ": 3,
-    "Communication Laboratory /\nForeign Language ": 1,
-    "Professional English ": 2,
-    "Statistics and Numerical Methods ": 4,
-    "Physics for Information Science ": 3,
-    "Physics Laboratory ": 1,
-    "Fundamentals of Economics and Financial Accounting": 4,
-    "Object Oriented Programming": 3,
-    "Data Structures and Algorithms": 3,
-    "Digital Principles and Computer Organization": 4,
-    "Discrete Mathematics": 3,
-    "Object Oriented Programming Laboratory": 1,
-    "Data Structures and Algorithms\nLaboratory": 1,
-    "Design Thinking": 1,
+    # CSBS 2023 - 2027
+    "CY23111": 3,
+    "CY23121": 1,
+    "GE23111": 3,
+    "GE23112": 0,
+    "GE23121": 1,
+    "GE23122": 1,
+    "GE23131": 4,
+    "HS23111": 3,
+    "MA23111": 4,
+    "AD23211": 3,
+    "AD23221": 1,
+    "GE23211": 3,
+    "GE23213": 0,
+    "GE23221": 1,
+    "HS23211": 2,
+    "MA23211": 4,
+    "PH23211": 3,
+    "PH23221": 1,
+    "CB23311": 4,
+    "CS23312": 3,
+    "CS23314": 3,
+    "EC23331": 4,
+    "MA23311": 3,
+    "CS23322": 1,
+    "CS23324": 1,
+    "CB23IC1": 1,
+
+    # AIML 2023-2027
+    "AL23311": 3,
+    "CS23411": 3,
+    "AL23321": 1,
+    "CS23421": 1,
 }
 
 letter_mapper = {"O": 10, "A+": 9, "A": 8, "B+": 7, "B": 6, "C": 5, "U": 0}
@@ -106,18 +114,19 @@ def get_grades():
         subjects = []
         
         for item in data["data"]:
-            subject_name = item["subject_name"]
-            grade_letter = item["grade_letter"]
+            subject_name = item["subject_name"].strip()
+            subject_code = item["subject_code"].strip()
+            grade_letter = item["grade_letter"].strip()
             
-            if subject_name in credits_mapper and grade_letter in letter_mapper:
-                if grade_letter == "U":
-                    continue
-                sem_score += letter_mapper[grade_letter] * credits_mapper[subject_name]
-                sem_total_credits += credits_mapper[subject_name]
+            if subject_code in credits_mapper and grade_letter in letter_mapper:
+                sem_score += letter_mapper[grade_letter] * credits_mapper[subject_code]
+                sem_total_credits += credits_mapper[subject_code]
+            else:
+                return jsonify({"error": "Your department isn't supported yet. Please try later."}), 500
             
             subjects.append({
                 "subject_name": subject_name,
-                "subject_code": item["subject_code"],
+                "subject_code": subject_code,
                 "grade_letter": grade_letter,
                 "result": item["result"],
             })
