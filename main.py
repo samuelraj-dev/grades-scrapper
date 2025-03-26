@@ -119,6 +119,8 @@ def get_grades():
             grade_letter = item["grade_letter"].strip()
             
             if subject_code in credits_mapper and grade_letter in letter_mapper:
+                if grade_letter == "U":
+                    continue
                 sem_score += letter_mapper[grade_letter] * credits_mapper[subject_code]
                 sem_total_credits += credits_mapper[subject_code]
             else:
