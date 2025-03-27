@@ -43,6 +43,54 @@ credits_mapper = {
     "CS23324": 1,
     "CB23IC1": 1,
 
+    # CSBS 2022 - 2026
+    "BS3171": 2,
+    "CY3151": 3,
+    "GE3151": 3,
+    "GE3152": 1,
+    "GE3171": 2,
+    "GE3172": 1,
+    "HS3152": 3,
+    "MA3151": 4,
+    "PH3151": 3,
+    "AD3251": 3,
+    "AD3271": 2,
+    "BE3251": 3,
+    "GE3251": 4,
+    "GE3252":1,
+    "GE3271":2,
+    "GE3272":2,
+    "HS3252":2,
+    "MA3251":4,
+    "PH3256":3,
+    "AD3351":4,
+    "AD3491":3,
+    "CS3351":4,
+    "CS3381":1.5,
+    "CS3391":3,
+    "CW3301":3,
+    "CW3311":1.5,
+    "GE3361":1,
+    "MA3354":4,
+
+    "AD3461":2,
+    "AL3451":3,
+    "AL3452":4,
+    "CS3481":1.5,
+    "CS3492":3,
+    "CW3401":3,
+    "CW3411":1.5,
+    "GE3451":2,
+    "MA3391":4,
+    "CCD332":3,
+    "CCS346":3,
+    "CS3691":4,
+    "CW3501":3,
+    "CW3551":3,
+    "CW3511":2,
+    "MX3084": 0,
+
+
     # AIML 2023-2027
     "AL23311": 3,
     "CS23411": 3,
@@ -52,7 +100,10 @@ credits_mapper = {
 
 letter_mapper = {"O": 10, "A+": 9, "A": 8, "B+": 7, "B": 6, "C": 5, "U": 0}
 
-
+# get
+# post
+# put, patch,
+# delete
 @app.route("/api/auth/login", methods=["POST"])
 def login():
     data = request.json
@@ -100,7 +151,7 @@ def get_grades():
         "X-Requested-With": "XMLHttpRequest",
     }
     
-    semesters = [1, 2, 3]
+    semesters = [1, 2, 3, 4, 5]
     total_score = 0
     total_credits = 0
     results = {}
@@ -124,6 +175,7 @@ def get_grades():
                 sem_score += letter_mapper[grade_letter] * credits_mapper[subject_code]
                 sem_total_credits += credits_mapper[subject_code]
             else:
+                print(item)
                 return jsonify({"error": "Your department isn't supported yet. Please try later."}), 500
             
             subjects.append({
