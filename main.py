@@ -126,6 +126,22 @@ def login():
     resp = jsonify({"message": "Login successful"})
     for key, value in cookies.items():
         resp.set_cookie(key, value, httponly=True, secure=True, samesite="None")
+    
+    # calculate semester
+    student_enrollment_year = register_number[4:6]
+    print(student_enrollment_year)
+
+    semester = ""
+    if student_enrollment_year == "21":
+        semester = "7"
+    elif student_enrollment_year == "22":
+        semester = "5"
+    elif student_enrollment_year == "23":
+        semester = "3"
+    elif student_enrollment_year == "24":
+        semester = "1"
+
+    resp.set_cookie("semester", semester, httponly=True, secure=True, samesite="None")
 
     return resp
 
@@ -134,6 +150,7 @@ def get_grades():
     cookies = {
         "XSRF-TOKEN": request.cookies.get("XSRF-TOKEN"),
         "laravel_session": request.cookies.get("laravel_session"),
+        "semester": request.cookies.get("semester")
     }
 
     if not cookies["XSRF-TOKEN"] or not cookies["laravel_session"]:
@@ -151,12 +168,12 @@ def get_grades():
         "X-Requested-With": "XMLHttpRequest",
     }
     
-    semesters = [1, 2, 3, 4, 5]
+    semesters = int(cookies["semester"])
     total_score = 0
     total_credits = 0
     results = {}
     
-    for semester in semesters:
+    for semester in range(1, semesters+1):
         response = session.post(PORTAL_GRADES_URL, data={"semester": semester}, headers=headers)
         data = response.json()
         
