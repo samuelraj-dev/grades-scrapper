@@ -1,12 +1,18 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import requests
 from bs4 import BeautifulSoup
 from flask_cors import CORS
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=os.path.join("ui", "dist"), static_url_path="/")
 app.secret_key = "123"
 
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "https://localhost:4433", "https://grades-scrapper-fe.vercel.app"])
+@app.route("/")
+@app.route("/<path:path>")
+def serve_react(path="index.html"):
+    return send_from_directory(app.static_folder, path)
+
+CORS(app, supports_credentials=True)
 
 PORTAL_LOGIN_URL = "https://ims.ritchennai.edu.in/login"
 PORTAL_GRADES_URL = "https://ims.ritchennai.edu.in/admin/grade/student/mark/get_marks"
@@ -106,10 +112,6 @@ credits_mapper = {
 
 letter_mapper = {"O": 10, "A+": 9, "A": 8, "B+": 7, "B": 6, "C": 5, "U": 0}
 
-# get
-# post
-# put, patch,
-# delete
 @app.route("/api/auth/login", methods=["POST"])
 def login():
     data = request.json
@@ -131,23 +133,10 @@ def login():
     cookies = session.cookies.get_dict()
     resp = jsonify({"message": "Login successful"})
     for key, value in cookies.items():
-        resp.set_cookie(key, value, httponly=True, secure=True, samesite="None")
+        resp.set_cookie(key, value, httponly=True, secure=True, samesite="Strict")
     
-    # calculate semester
-    student_enrollment_year = register_number[4:6]
-    print(student_enrollment_year)
-
-    semester = ""
-    if student_enrollment_year == "21":
-        semester = "7"
-    elif student_enrollment_year == "22":
-        semester = "5"
-    elif student_enrollment_year == "23":
-        semester = "3"
-    elif student_enrollment_year == "24":
-        semester = "1"
-
-    resp.set_cookie("semester", semester, httponly=True, secure=True, samesite="None")
+    # student_enrollment_year = register_number[4:6]
+    # print(student_enrollment_year)
 
     return resp
 
@@ -156,7 +145,6 @@ def get_grades():
     cookies = {
         "XSRF-TOKEN": request.cookies.get("XSRF-TOKEN"),
         "laravel_session": request.cookies.get("laravel_session"),
-        "semester": request.cookies.get("semester")
     }
 
     if not cookies["XSRF-TOKEN"] or not cookies["laravel_session"]:
@@ -174,7 +162,7 @@ def get_grades():
         "X-Requested-With": "XMLHttpRequest",
     }
     
-    semesters = int(cookies["semester"])
+    semesters = 8
     total_score = 0
     total_credits = 0
     results = {}
@@ -207,12 +195,13 @@ def get_grades():
                 "grade_letter": grade_letter,
                 "result": item["result"],
             })
-        
-        results[f"Semester {semester}"] = {
-            "GPA": round(sem_score / sem_total_credits, 3) if sem_total_credits else 0,
-        }
-        total_score += sem_score
-        total_credits += sem_total_credits
+
+        if sem_total_credits > 0:
+            results[f"Semester {semester}"] = {
+                "GPA": round(sem_score / sem_total_credits, 3),
+            }
+            total_score += sem_score
+            total_credits += sem_total_credits
     
     cgpa = round(total_score / total_credits, 3) if total_credits else 0
     return jsonify({"CGPA": cgpa, "grades": results})
